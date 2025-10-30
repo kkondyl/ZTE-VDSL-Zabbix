@@ -12,3 +12,17 @@ Detection of DSL data endpoints
 JSON output
 
 Zabbix sender
+
+# Prerequisites
+linux
+curl
+python
+zabbix server
+zabbix sender
+
+# How to use
+copy the push_modem.sh and zte_vdsl.py scripts to your linux machine (default path /mnt/zte) that has access to your ZTE VDSL router
+Edit push_modem.sh (credentials, IP, etc)
+Add push_modem.sh to crontab (* * * * * /mnt/zte/push_modem.sh > /dev/null 2>&1)
+Import zabbix template
+Add your ZTE router to Zabbix and link it to the template
