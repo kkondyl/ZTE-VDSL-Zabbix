@@ -14,11 +14,16 @@ JSON output
 Zabbix sender
 
 # Prerequisites
-linux
+linux e.g. Ubuntu, rpi3 with raspbian, etc
+
 curl
+
 python
-zabbix server
+
+zabbix server (tested with 7.0)
+
 zabbix sender
+
 
 # How to use
 copy the push_modem.sh and zte_vdsl.py scripts to your linux machine (default path /mnt/zte) that has access to your ZTE VDSL router
