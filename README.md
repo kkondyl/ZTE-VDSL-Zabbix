@@ -6,6 +6,9 @@ It reverse-engineers the ZTE web login and data pages using curl, auto-detects t
 
 # Features
 Automatic login
+
 Detection of DSL data endpoints (/common_page/internet_dsl_interface_lua.lua, etc.)
+
 JSON output
+
 Zabbix sender
