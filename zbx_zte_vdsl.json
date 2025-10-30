@@ -1,0 +1,712 @@
+{
+    "zabbix_export": {
+        "version": "7.0",
+        "template_groups": [
+            {
+                "uuid": "36bff6c29af64692839d077febfc7079",
+                "name": "Templates/Network devices"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "75634aa0067a4d98a8859064b842ff00",
+                "template": "H267A VDSL",
+                "name": "H267A VDSL",
+                "groups": [
+                    {
+                        "name": "Templates/Network devices"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "c5fc722c24d74ccdb579271b9a3ba42d",
+                        "name": "Attenuation down",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.attn.down",
+                        "delay": "0",
+                        "value_type": "FLOAT",
+                        "units": "dB",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.down_attn_db"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "d8cabd3286e94754b13eafaadf32743c",
+                        "name": "Attenuation up",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.attn.up",
+                        "delay": "0",
+                        "value_type": "FLOAT",
+                        "units": "dB",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.up_attn_db"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "721e8b30ee104a338d2de2eb376fb8be",
+                        "name": "CRC total",
+                        "type": "CALCULATED",
+                        "key": "modem.dsl.crc",
+                        "units": "errors",
+                        "params": "last(//modem.dsl.crc.down) + last(//modem.dsl.crc.up)"
+                    },
+                    {
+                        "uuid": "6b942843aa624b598f71a6f4da5f094c",
+                        "name": "CRC down",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.crc.down",
+                        "delay": "0",
+                        "units": "errors",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.down_crc"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "07ceb57d2ed44acc961649efc4ed8215",
+                        "name": "CRC down rate",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.crc.down.rate",
+                        "delay": "0",
+                        "units": "errors/h",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.down_crc"
+                                ]
+                            },
+                            {
+                                "type": "CHANGE_PER_SECOND",
+                                "parameters": [
+                                    ""
+                                ]
+                            },
+                            {
+                                "type": "MULTIPLIER",
+                                "parameters": [
+                                    "3600"
+                                ]
+                            },
+                            {
+                                "type": "JAVASCRIPT",
+                                "parameters": [
+                                    "// clamp negatives to zero\nvar v = Number(value);\nreturn (isFinite(v) && v > 0) ? v : 0;"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        },
+                        "triggers": [
+                            {
+                                "uuid": "569dbe3befbb41538aec29f1d07a8e53",
+                                "expression": "avg(/H267A VDSL/modem.dsl.crc.down.rate,15m)>{$CRC.RATE.WARN}",
+                                "recovery_mode": "RECOVERY_EXPRESSION",
+                                "recovery_expression": "avg(/H267A VDSL/modem.dsl.crc.down.rate,15m)<{$CRC.RATE.WARN.RECOVER}",
+                                "name": "CRC rate elevated: {ITEM.LASTVALUE1} events/h (avg 15m > {$CRC.RATE.WARN})",
+                                "priority": "WARNING",
+                                "dependencies": [
+                                    {
+                                        "name": "CRC rate HIGH: {ITEM.LASTVALUE1} events/h (avg 15m > {$CRC.RATE.CRIT})",
+                                        "expression": "avg(/H267A VDSL/modem.dsl.crc.down.rate,15m) > {$CRC.RATE.CRIT}",
+                                        "recovery_expression": "avg(/H267A VDSL/modem.dsl.crc.down.rate,15m) < {$CRC.RATE.CRIT.RECOVER}"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "53e2fa173e984ff19d7ff5774efbc728",
+                                "expression": "avg(/H267A VDSL/modem.dsl.crc.down.rate,15m) > {$CRC.RATE.CRIT}",
+                                "recovery_mode": "RECOVERY_EXPRESSION",
+                                "recovery_expression": "avg(/H267A VDSL/modem.dsl.crc.down.rate,15m) < {$CRC.RATE.CRIT.RECOVER}",
+                                "name": "CRC rate HIGH: {ITEM.LASTVALUE1} events/h (avg 15m > {$CRC.RATE.CRIT})",
+                                "priority": "HIGH"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "e85a13cd57dd4cc1ae9f11092b8be0ca",
+                        "name": "CRC Total rate",
+                        "type": "CALCULATED",
+                        "key": "modem.dsl.crc.rate",
+                        "units": "errors/h",
+                        "params": "last(//modem.dsl.crc.down.rate) + last(//modem.dsl.crc.up.rate)"
+                    },
+                    {
+                        "uuid": "d98135240dfd4404970314e6b36882ca",
+                        "name": "CRC up",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.crc.up",
+                        "delay": "0",
+                        "units": "errors",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.up_crc"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "848a46e3b9394315ac5edd9932bbfab0",
+                        "name": "CRC up rate",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.crc.up.rate",
+                        "delay": "0",
+                        "units": "errors/h",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.up_crc"
+                                ]
+                            },
+                            {
+                                "type": "CHANGE_PER_SECOND",
+                                "parameters": [
+                                    ""
+                                ]
+                            },
+                            {
+                                "type": "MULTIPLIER",
+                                "parameters": [
+                                    "3600"
+                                ]
+                            },
+                            {
+                                "type": "JAVASCRIPT",
+                                "parameters": [
+                                    "// clamp negatives to zero\nvar v = Number(value);\nreturn (isFinite(v) && v > 0) ? v : 0;"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "c061e470213a4ee4b99f6560c60f6aea",
+                        "name": "Data path",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.datapath",
+                        "delay": "0",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.data_path"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "1d"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "7317a9ef0c4b4d49b223d56232462b71",
+                        "name": "Down",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.down",
+                        "delay": "0",
+                        "value_type": "FLOAT",
+                        "units": "Mbps",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.down_current_mbps"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "58549127c1924ee8a51b5c311094d3ac",
+                        "name": "Down max",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.down.max",
+                        "delay": "0",
+                        "value_type": "FLOAT",
+                        "units": "Mbps",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.down_max_mbps"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "060bc3c30cb74483b47f2faf6bce1b8d",
+                        "name": "FEC total",
+                        "type": "CALCULATED",
+                        "key": "modem.dsl.fec",
+                        "units": "errors",
+                        "params": "last(//modem.dsl.fec.down) + last(//modem.dsl.fec.up)"
+                    },
+                    {
+                        "uuid": "0544f9653016418aa85ce9c45b88e195",
+                        "name": "FEC down",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.fec.down",
+                        "delay": "0",
+                        "units": "errors",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.fec_ds"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "71d804f241324f41a682908904854095",
+                        "name": "FEC up",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.fec.up",
+                        "delay": "0",
+                        "units": "errors",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.fec_us"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "492cffa83e244069af66abe3a9b7f23f",
+                        "name": "Modulation",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.modulation",
+                        "delay": "0",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.modulation"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "1d"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "f094313c82b84f93b70b03aea5f9f0b9",
+                        "name": "Power down",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.power.down",
+                        "delay": "0",
+                        "value_type": "FLOAT",
+                        "units": "dBm",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.down_power_dbm"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "8089f0d7e0a64b06a746e42b372eb781",
+                        "name": "Power up",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.power.up",
+                        "delay": "0",
+                        "value_type": "FLOAT",
+                        "units": "dBm",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.up_power_dbm"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "9f60ba6d646244e9bbd7f4c060df127f",
+                        "name": "Profile",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.profile",
+                        "delay": "0",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.profile"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "1d"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "d57baa4d90154f2186ce01959781e50f",
+                        "name": "SNR down",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.snr.down",
+                        "delay": "0",
+                        "value_type": "FLOAT",
+                        "units": "dB",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.down_snr_db"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        },
+                        "triggers": [
+                            {
+                                "uuid": "89b1d4ab9f924955921e8f6510750985",
+                                "expression": "last(/H267A VDSL/modem.dsl.snr.down)<{$SNR.DOWN.MIN}",
+                                "name": "Low downstream SNR",
+                                "priority": "WARNING"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "cb7f2bc37fee45b094de583c580752ba",
+                        "name": "SNR up",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.snr.up",
+                        "delay": "0",
+                        "units": "dB",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.up_snr_db"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "4820dccc29804aa6b4766f0bc5082a18",
+                        "name": "Status",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.status",
+                        "delay": "0",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.status"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "1d"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        },
+                        "triggers": [
+                            {
+                                "uuid": "04ee3d78295b4c11ab12a6cc6c57360a",
+                                "expression": "last(/H267A VDSL/modem.dsl.status)<>\"Up\"",
+                                "name": "DSL is DOWN",
+                                "priority": "HIGH",
+                                "manual_close": "YES"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "65797f7acf8945fca914100f92854c6b",
+                        "name": "Up",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.up",
+                        "delay": "0",
+                        "value_type": "FLOAT",
+                        "units": "Mbps",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.up_current_mbps"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "893bc210d724402fac05a787fcdbaeaf",
+                        "name": "Up max",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.up.max",
+                        "delay": "0",
+                        "value_type": "FLOAT",
+                        "units": "Mbps",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.up_max_mbps"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "15m"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "b583ef4934334ed3ba5f08b2fd969604",
+                        "name": "Sync uptime",
+                        "type": "DEPENDENT",
+                        "key": "modem.dsl.uptime.seconds",
+                        "delay": "0",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.dsl.showtime_seconds"
+                                ]
+                            },
+                            {
+                                "type": "JAVASCRIPT",
+                                "parameters": [
+                                    "var s = Number(value) || 0;\n\nvar d = Math.floor(s / 86400); s %= 86400;\nvar h = Math.floor(s / 3600);  s %= 3600;\nvar m = Math.floor(s / 60);\nvar sec = s % 60;\n\n// inline zero-pad without padStart\nreturn d + 'd '\n     + (h < 10 ? '0' : '') + h + ':'\n     + (m < 10 ? '0' : '') + m + ':'\n     + (sec < 10 ? '0' : '') + sec;"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "40fcb660226044889dc6eb5697bda577",
+                        "name": "WAN IP",
+                        "type": "DEPENDENT",
+                        "key": "modem.wan.ip",
+                        "delay": "0",
+                        "value_type": "TEXT",
+                        "trends": "0",
+                        "status": "DISABLED",
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data.parsed.ip_address"
+                                ]
+                            },
+                            {
+                                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                                "parameters": [
+                                    "1d"
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "zte.dsl.json"
+                        }
+                    },
+                    {
+                        "uuid": "3b229e127d144eaa89922234b1edb291",
+                        "name": "ZTE DSL JSON",
+                        "type": "TRAP",
+                        "key": "zte.dsl.json",
+                        "delay": "0",
+                        "history": "1d",
+                        "value_type": "TEXT",
+                        "trends": "0"
+                    }
+                ],
+                "macros": [
+                    {
+                        "macro": "{$ATTAIN.MARGIN}",
+                        "value": "1.05",
+                        "description": "Tolerance for sync > max attainable"
+                    },
+                    {
+                        "macro": "{$CRC.RATE.CRIT}",
+                        "value": "1800",
+                        "description": "CRC/h Critical threshold"
+                    },
+                    {
+                        "macro": "{$CRC.RATE.CRIT.RECOVER}",
+                        "value": "1200",
+                        "description": "Critical recovery"
+                    },
+                    {
+                        "macro": "{$CRC.RATE.WARN}",
+                        "value": "360",
+                        "description": "CRC/h Warning threshold"
+                    },
+                    {
+                        "macro": "{$CRC.RATE.WARN.RECOVER}",
+                        "value": "240",
+                        "description": "Warning recovery"
+                    },
+                    {
+                        "macro": "{$SNR.DOWN.MIN}",
+                        "value": "6",
+                        "description": "Warn threshold for downstream SNR (dB)"
+                    },
+                    {
+                        "macro": "{$SNR.UP.MIN}",
+                        "value": "6",
+                        "description": "Warn threshold for upstream SNR (dB)"
+                    }
+                ]
+            }
+        ],
+        "triggers": [
+            {
+                "uuid": "d14035f59589459d8610ca8b1f7bc2f3",
+                "expression": "last(/H267A VDSL/modem.dsl.down)>last(/H267A VDSL/modem.dsl.down.max)*{$ATTAIN.MARGIN}",
+                "name": "Sync > attainable",
+                "priority": "WARNING"
+            }
+        ]
+    }
+}
