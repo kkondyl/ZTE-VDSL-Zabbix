@@ -14,7 +14,9 @@ JSON output
 Zabbix sender
 
 # Prerequisites
-linux e.g. Ubuntu, rpi3 with raspbian, etc
+ZTE H267A or other compatible DSL router
+
+linux machine e.g. Ubuntu, rpi3 with raspbian, etc
 
 curl
 
